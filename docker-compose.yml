@@ -1,0 +1,40 @@
+# docker-compose.yml
+version: '3.8' # Use a recent version
+
+services:
+  # Zookeeper Service (Required by Kafka in this setup)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0 # Using Confluent's image, version 7.3.0
+    container_name: splitapp-zookeeper    # Consistent container name
+    ports:
+      - "2181:2181"                       # Standard Zookeeper port
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # Kafka Broker Service
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0    # Matching Confluent Kafka version
+    container_name: splitapp-kafka        # Consistent container name
+    ports:
+      # Port 9092 is used for internal communication between containers if needed
+      # Port 29092 is mapped to the host for our Spring Boot app to connect
+      - "9092:9092"
+      - "29092:29092"
+    depends_on:
+      - zookeeper                         # Ensure Zookeeper starts before Kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 # Connect to Zookeeper using its service name within Docker
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      # Advertised Listeners: How clients connect.
+      # PLAINTEXT://kafka:9092 is for internal docker network clients
+      # PLAINTEXT_HOST://localhost:29092 is for external clients (our Spring Boot app)
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      # Required settings for a single-node Kafka cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1 # Confluent specific settings
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
