@@ -37,7 +37,7 @@ public class SecurityConfig {
         // TODO: Configure actual security rules here later (e.g., permit /api/register, secure others)
         http
                 .authorizeHttpRequests(authz -> authz
-                        // TEMPORARY: Allow all requests for now during early development
+                        // TEMPORARY: Allowing all requests for now
                         // We WILL secure this properly later!
                         .anyRequest().permitAll()
                 )

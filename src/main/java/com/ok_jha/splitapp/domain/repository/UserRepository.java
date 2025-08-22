@@ -9,7 +9,7 @@ import java.util.Optional;
 // Extends JpaRepository for CRUD methods
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // --- Custom Query Methods ---
+    // --- Custom Query Methods --- will have later...
     // Spring Data JPA will automatically generate the implementation for these methods
     // based on their names.
 
